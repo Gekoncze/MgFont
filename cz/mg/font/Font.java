@@ -1,18 +1,45 @@
 package cz.mg.font;
 
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import java.nio.ByteBuffer;
+
 
 public class Font {
-    final long handle;
-    
-    public Font(FontLibrary library, byte[] data) {
-        this.handle = create(library.handle, data);
+    private Pointer font;
+
+    public Font(byte[] data) {
+        this(createDirectBuffer(data));
+    }
+
+    public Font(ByteBuffer data) {
+        if(!data.isDirect()) throw new RuntimeException("Font byte buffer data must be direct.");
+        font = FontLibraryC.instance.MgFont_create(FontLibrary.getInstance().getLibrary(), Native.getDirectBufferPointer(data), data.position());
+        if(font == null || font == Pointer.NULL) throw new RuntimeException("Could not create font.");
     }
 
     @Override
     protected void finalize() throws Throwable {
-        destroy(handle);
+        if(font != null && font != Pointer.NULL){
+            FontLibraryC.instance.MgFont_destroy(font);
+        }
     }
-    
-    private native long create(long libraryHandle, byte[] data);
-    private native void destroy(long handle);
+
+    Pointer getFont() {
+        return font;
+    }
+
+    public String getName(){
+        return FontLibraryC.instance.MgFont_getName(font);
+    }
+
+    public void setSize(int size){
+        FontLibraryC.instance.MgFont_setSize(font, size);
+    }
+
+    public static ByteBuffer createDirectBuffer(byte[] data){
+        ByteBuffer buffer = ByteBuffer.allocateDirect(data.length);
+        buffer.put(data);
+        return buffer;
+    }
 }

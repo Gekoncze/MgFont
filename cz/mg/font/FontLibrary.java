@@ -1,22 +1,31 @@
 package cz.mg.font;
 
+import com.sun.jna.Pointer;
+
 
 public class FontLibrary {
-    final long handle;
-    
-    static {
-        System.loadLibrary("MgFont");
+    private static FontLibrary instance = null;
+
+    public static FontLibrary getInstance(){
+        if(instance == null) instance = new FontLibrary();
+        return instance;
     }
-    
-    public FontLibrary() {
-        this.handle = create();
+
+    private Pointer library;
+
+    private FontLibrary(){
+        library = FontLibraryC.instance.MgFontLibrary_create();
+        if(library == null || library == Pointer.NULL) throw new RuntimeException("Could not create font library.");
     }
 
     @Override
     protected void finalize() throws Throwable {
-        destroy(handle);
+        if(library != null && library != Pointer.NULL){
+            FontLibraryC.instance.MgFontLibrary_destroy(library);
+        }
     }
-    
-    private native long create();
-    private native void destroy(long handle);
+
+    Pointer getLibrary() {
+        return library;
+    }
 }
