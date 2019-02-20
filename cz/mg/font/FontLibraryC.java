@@ -15,6 +15,7 @@ interface FontLibraryC extends Library {
     public void MgFont_destroy(Pointer font);
     public int MgFont_setSize(Pointer font, int size);
     public String MgFont_getName(Pointer font);
+    public int MgFont_canDisplay(Pointer font, int utfCode);
 
     public Pointer MgFontCharacter_create(Pointer font, int utfCode);
     public int MgFontCharacter_destroy(Pointer character);

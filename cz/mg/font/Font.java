@@ -33,6 +33,10 @@ public class Font {
         return FontLibraryC.instance.MgFont_getName(font);
     }
 
+    public boolean canDisplay(char ch){
+        return FontLibraryC.instance.MgFont_canDisplay(font, (int)ch) != 0;
+    }
+
     public void setSize(int size){
         FontLibraryC.instance.MgFont_setSize(font, size);
     }
